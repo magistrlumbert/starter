@@ -1,11 +1,4 @@
 const resolvers = {
-  connection: {
-    __resolveType: (obj) => {
-      // if (obj.amount) return 'is_part_of'
-      //  if (obj.age) return 'is_substance_in'
-      return null
-    },
-  },
   Query: {
     count: async (_, __, ctx) => {
       let session = ctx.driver.session()
@@ -13,6 +6,7 @@ const resolvers = {
             RETURN substance,relationships(path) as rel_list,product
             SKIP 0
             LIMIT 50`
+      console.log(cypherQuery)
 
       return await session.run(cypherQuery).then((result) => {
         const resData = result.records.map((record) => {
@@ -28,6 +22,7 @@ const resolvers = {
             rel_list.map((relationship) => {
               const { identity, start, end, type } = relationship
               const { amount, unit, processing_type } = relationship.properties
+              console.log( identity, start, end, type, amount, unit, processing_type)
               const connection = {
                 id: '0',
                 identity: identity.toString(),
@@ -59,6 +54,7 @@ const resolvers = {
             }
           }
         })
+        console.log(resData)
         return resData
       })
     },

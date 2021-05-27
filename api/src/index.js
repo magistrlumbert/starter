@@ -35,7 +35,6 @@ const neoSchema = new Neo4jGraphQL({
   typeDefs,
   resolvers,
   driver,
-  allowUndefinedInResolve: true,
 })
 
 /*
