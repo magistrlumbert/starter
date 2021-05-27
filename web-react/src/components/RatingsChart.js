@@ -1,27 +1,45 @@
 import React from 'react'
-import { useTheme } from '@material-ui/core/styles'
-import {
-  Bar,
-  XAxis,
-  YAxis,
-  Label,
-  ResponsiveContainer,
-  BarChart,
-} from 'recharts'
+// import { useTheme } from '@material-ui/core/styles'
+import { ResponsiveContainer } from 'recharts'
 import { useQuery, gql } from '@apollo/client'
 import Title from './Title'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from '@material-ui/core'
 
 const GET_DATA_QUERY = gql`
   {
-    ratingsCount {
-      stars
-      count
+    count {
+      substance {
+        substancename
+        CAS
+      }
+      product {
+        gtin
+        name
+      }
+      rel_list {
+        identity
+        start
+        end
+        from
+        to
+        processing_type
+        amount
+        unit
+        type
+        __typename
+      }
     }
   }
 `
 
 export default function RatingsChart() {
-  const theme = useTheme()
+  // const theme = useTheme()
 
   const { loading, error, data } = useQuery(GET_DATA_QUERY)
   if (error) return <p>Error</p>
@@ -29,29 +47,32 @@ export default function RatingsChart() {
 
   return (
     <React.Fragment>
-      <Title>Ratings Distribution</Title>
+      <Title>Aluminium</Title>
       <ResponsiveContainer>
-        <BarChart
-          data={data.ratingsCount}
-          margin={{
-            top: 16,
-            right: 16,
-            bottom: 0,
-            left: 24,
-          }}
-        >
-          <XAxis dataKey="stars" stroke={theme.palette.text.secondary} />
-          <YAxis stroke={theme.palette.text.secondary}>
-            <Label
-              angle={270}
-              position="left"
-              style={{ textAnchor: 'middle', fill: theme.palette.text.primary }}
-            >
-              Count
-            </Label>
-          </YAxis>
-          <Bar dataKey="count" fill={theme.palette.primary.main}></Bar>
-        </BarChart>
+        {data && !error && !loading && (
+          <div width="100%">
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>substance</TableCell>
+                  <TableCell>relation list</TableCell>
+                  <TableCell>product</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data.count.map(({ product, rel_list, substance }, index) => {
+                  return (
+                    <TableRow key={`row-${index}`}>
+                      <TableCell>{JSON.stringify(substance)}</TableCell>
+                      <TableCell>{JSON.stringify(rel_list)}</TableCell>
+                      <TableCell>{JSON.stringify(product)}</TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </ResponsiveContainer>
     </React.Fragment>
   )
